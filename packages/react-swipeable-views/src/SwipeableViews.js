@@ -387,9 +387,17 @@ class SwipeableViews extends React.Component {
 
     const touch = applyRotationMatrix(event.touches[0], axis);
 
+<<<<<<< HEAD
     this.viewLength = this.rootNode.getBoundingClientRect()[
       axisProperties.length[axis]
     ];
+=======
+    const rootStyle = window.getComputedStyle(this.rootNode);
+    this.viewLength =
+      this.rootNode.getBoundingClientRect()[axisProperties.length[axis]] -
+      parseInt(rootStyle.paddingLeft, 10) -
+      parseInt(rootStyle.paddingRight, 10);
+>>>>>>> a4ecaab... Fix padding while swiping
     this.startX = touch.pageX;
     this.lastX = touch.pageX;
     this.vx = 0;
@@ -407,7 +415,6 @@ class SwipeableViews extends React.Component {
         .split('(')[1]
         .split(')')[0]
         .split(',');
-      const rootStyle = window.getComputedStyle(this.rootNode);
 
       const tranformNormalized = applyRotationMatrix(
         {
@@ -417,11 +424,7 @@ class SwipeableViews extends React.Component {
         axis,
       );
 
-      this.startIndex =
-        -tranformNormalized.pageX /
-          (this.viewLength -
-            parseInt(rootStyle.paddingLeft, 10) -
-            parseInt(rootStyle.paddingRight, 10)) || 0;
+      this.startIndex = -tranformNormalized.pageX / this.viewLength || 0;
     }
   };
 
