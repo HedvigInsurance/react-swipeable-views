@@ -81,10 +81,10 @@ const axisProperties = {
     'y-reverse': 'column-reverse',
   },
   transform: {
-    x: translate => `translate(${-translate}%, 0)`,
-    'x-reverse': translate => `translate(${translate}%, 0)`,
-    y: translate => `translate(0, ${-translate}%)`,
-    'y-reverse': translate => `translate(0, ${translate}%)`,
+    x: (translate) => `translate(${-translate}%, 0)`,
+    'x-reverse': (translate) => `translate(${translate}%, 0)`,
+    y: (translate) => `translate(0, ${-translate}%)`,
+    'y-reverse': (translate) => `translate(0, ${translate}%)`,
   },
   length: {
     x: 'width',
@@ -141,8 +141,10 @@ function applyRotationMatrix(touch, axis) {
   const rotationMatrix = axisProperties.rotationMatrix[axis];
 
   return {
-    pageX: rotationMatrix.x[0] * touch.pageX + rotationMatrix.x[1] * touch.pageY,
-    pageY: rotationMatrix.y[0] * touch.pageX + rotationMatrix.y[1] * touch.pageY,
+    pageX:
+      rotationMatrix.x[0] * touch.pageX + rotationMatrix.x[1] * touch.pageY,
+    pageY:
+      rotationMatrix.y[0] * touch.pageX + rotationMatrix.y[1] * touch.pageY,
   };
 }
 
@@ -200,7 +202,7 @@ let nodeWhoClaimedTheScroll = null;
 export function findNativeHandler(params) {
   const { domTreeShapes, pageX, startX, axis } = params;
 
-  return domTreeShapes.some(shape => {
+  return domTreeShapes.some((shape) => {
     // Determine if we are going backward or forward.
     let goingForward = pageX >= startX;
     if (axis === 'x' || axis === 'y') {
@@ -290,7 +292,7 @@ class SwipeableViews extends React.Component {
     this.transitionListener = addEventListenerEnhanced(
       this.containerNode,
       transitionInfo.end,
-      event => {
+      (event) => {
         if (event.target !== this.containerNode) {
           return;
         }
@@ -303,7 +305,7 @@ class SwipeableViews extends React.Component {
     this.touchMoveListener = addEventListenerEnhanced(
       this.rootNode,
       'touchmove',
-      event => {
+      (event) => {
         // Handling touch events is disabled.
         if (this.props.disabled) {
           return;
@@ -367,25 +369,27 @@ class SwipeableViews extends React.Component {
     }
   }
 
-  setRootNode = node => {
+  setRootNode = (node) => {
     this.rootNode = node;
   };
 
-  setContainerNode = node => {
+  setContainerNode = (node) => {
     this.containerNode = node;
   };
 
-  setActiveSlide = node => {
+  setActiveSlide = (node) => {
     this.activeSlide = node;
     this.updateHeight();
   };
 
-  handleSwipeStart = event => {
+  handleSwipeStart = (event) => {
     const { axis } = this.props;
 
     const touch = applyRotationMatrix(event.touches[0], axis);
 
-    this.viewLength = this.rootNode.getBoundingClientRect()[axisProperties.length[axis]];
+    this.viewLength = this.rootNode.getBoundingClientRect()[
+      axisProperties.length[axis]
+    ];
     this.startX = touch.pageX;
     this.lastX = touch.pageX;
     this.vx = 0;
@@ -421,7 +425,7 @@ class SwipeableViews extends React.Component {
     }
   };
 
-  handleSwipeMove = event => {
+  handleSwipeMove = (event) => {
     // The touch start event can be cancel.
     // Makes sure we set a starting point.
     if (!this.started) {
@@ -430,11 +434,20 @@ class SwipeableViews extends React.Component {
     }
 
     // We are not supposed to hanlde this touch move.
-    if (nodeWhoClaimedTheScroll !== null && nodeWhoClaimedTheScroll !== this.rootNode) {
+    if (
+      nodeWhoClaimedTheScroll !== null &&
+      nodeWhoClaimedTheScroll !== this.rootNode
+    ) {
       return;
     }
 
-    const { axis, children, ignoreNativeScroll, onSwitching, resistance } = this.props;
+    const {
+      axis,
+      children,
+      ignoreNativeScroll,
+      onSwitching,
+      resistance,
+    } = this.props;
     const touch = applyRotationMatrix(event.touches[0], axis);
 
     // We don't know yet.
@@ -444,12 +457,15 @@ class SwipeableViews extends React.Component {
 
       const isSwiping = dx > dy && dx > constant.UNCERTAINTY_THRESHOLD;
 
+      const childrenCount =
+        this.props.slideCount || React.Children.count(this.props.children);
+
       // We let the parent handle the scroll.
       if (
         !resistance &&
         (axis === 'y' || axis === 'y-reverse') &&
         ((this.indexCurrent === 0 && this.startX < touch.pageX) ||
-          (this.indexCurrent === React.Children.count(this.props.children) - 1 &&
+          (this.indexCurrent === childrenCount - 1 &&
             this.startX > touch.pageX))
       ) {
         this.isSwiping = false;
@@ -568,7 +584,9 @@ class SwipeableViews extends React.Component {
       indexNew = indexLatest;
     }
 
-    const indexMax = React.Children.count(this.props.children) - 1;
+    const childrenCount =
+      this.props.slideCount || React.Children.count(this.props.children);
+    const indexMax = childrenCount - 1;
 
     if (indexNew < 0) {
       indexNew = 0;
@@ -601,21 +619,21 @@ class SwipeableViews extends React.Component {
     );
   };
 
-  handleTouchStart = event => {
+  handleTouchStart = (event) => {
     if (this.props.onTouchStart) {
       this.props.onTouchStart(event);
     }
     this.handleSwipeStart(event);
   };
 
-  handleTouchEnd = event => {
+  handleTouchEnd = (event) => {
     if (this.props.onTouchEnd) {
       this.props.onTouchEnd(event);
     }
     this.handleSwipeEnd(event);
   };
 
-  handleMouseDown = event => {
+  handleMouseDown = (event) => {
     if (this.props.onMouseDown) {
       this.props.onMouseDown(event);
     }
@@ -623,14 +641,14 @@ class SwipeableViews extends React.Component {
     this.handleSwipeStart(adaptMouse(event));
   };
 
-  handleMouseUp = event => {
+  handleMouseUp = (event) => {
     if (this.props.onMouseUp) {
       this.props.onMouseUp(event);
     }
     this.handleSwipeEnd(adaptMouse(event));
   };
 
-  handleMouseLeave = event => {
+  handleMouseLeave = (event) => {
     if (this.props.onMouseLeave) {
       this.props.onMouseLeave(event);
     }
@@ -641,7 +659,7 @@ class SwipeableViews extends React.Component {
     }
   };
 
-  handleMouseMove = event => {
+  handleMouseMove = (event) => {
     if (this.props.onMouseMove) {
       this.props.onMouseMove(event);
     }
@@ -652,7 +670,7 @@ class SwipeableViews extends React.Component {
     }
   };
 
-  handleScroll = event => {
+  handleScroll = (event) => {
     if (this.props.onScroll) {
       this.props.onScroll(event);
     }
@@ -668,7 +686,9 @@ class SwipeableViews extends React.Component {
     }
 
     const indexLatest = this.state.indexLatest;
-    const indexNew = Math.ceil(event.target.scrollLeft / event.target.clientWidth) + indexLatest;
+    const indexNew =
+      Math.ceil(event.target.scrollLeft / event.target.clientWidth) +
+      indexLatest;
 
     this.ignoreNextScrollEvents = true;
     // Reset the scroll position.
@@ -739,7 +759,13 @@ class SwipeableViews extends React.Component {
       ...other
     } = this.props;
 
-    const { displaySameSlide, heightLatest, isDragging, isFirstRender, indexLatest } = this.state;
+    const {
+      displaySameSlide,
+      heightLatest,
+      isDragging,
+      isFirstRender,
+      indexLatest,
+    } = this.state;
     const touchEvents = !disabled
       ? {
           onTouchStart: this.handleTouchStart,
@@ -778,7 +804,10 @@ So animateHeight is most likely having no effect at all.`,
       WebkitTransition = createTransition('-webkit-transform', springConfig);
 
       if (heightLatest !== 0) {
-        const additionalTranstion = `, ${createTransition('height', springConfig)}`;
+        const additionalTranstion = `, ${createTransition(
+          'height',
+          springConfig,
+        )}`;
         transition += additionalTranstion;
         WebkitTransition += additionalTranstion;
       }
@@ -814,11 +843,20 @@ So animateHeight is most likely having no effect at all.`,
       >
         <div
           ref={this.setContainerNode}
-          style={Object.assign({}, containerStyle, styles.container, containerStyleProp)}
+          style={Object.assign(
+            {},
+            containerStyle,
+            styles.container,
+            containerStyleProp,
+          )}
           className="react-swipeable-view-container"
         >
           {React.Children.map(children, (child, indexChild) => {
-            if (!disableLazyLoading && isFirstRender && indexChild !== indexLatest) {
+            if (
+              !disableLazyLoading &&
+              isFirstRender &&
+              indexChild !== indexLatest
+            ) {
               return null;
             }
 
@@ -997,6 +1035,11 @@ SwipeableViews.propTypes = {
    * on the slide component.
    */
   slideStyle: PropTypes.object,
+  /**
+   * This lets you customized the number of slides
+   * regardless of how many children you provide.
+   */
+  slideCount: PropTypes.number,
   /**
    * This is the config used to create CSS transitions.
    * This is useful to change the dynamic of the transition.
